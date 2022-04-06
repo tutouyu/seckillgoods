@@ -1,18 +1,82 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+    <div class="login">
+      <div class="title">三湘银行秒杀系统</div>
+      <el-input v-model="state.account" placeholder="账号" class="account" />
+      <el-input
+        v-model="state.password"
+        type="password"
+        placeholder="密码"
+        class="password"
+        show-password
+      />
+      <div class="button">
+        <el-button @click="login">登录</el-button>
+        <el-button @click="register">注册</el-button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
-
-@Options({
-  components: {
-    HelloWorld,
+import { ref, defineComponent, reactive } from "vue";
+import { useRouter } from "vue-router";
+export default defineComponent({
+  setup(props, { emit }) {
+    let router = useRouter();
+    let state = reactive({
+      account: "",
+      password: "",
+    });
+    const login = function () {
+      router.push({ path: "/Seckillgoods" });
+    };
+    const register = function () {
+      router.push({ path: "/Register" });
+    };
+    return {
+      state,
+      login,
+      register,
+    };
   },
-})
-export default class Home extends Vue {}
+});
 </script>
+<style lang="scss" scoped>
+.home {
+  position: relative;
+  height: 100vh;
+  background: url("../assets/bank.jpeg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  .login {
+    border-radius: 8px;
+    background-color: white;
+    width: 300px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -70%);
+    .title {
+      text-align: center;
+      height: 60px;
+      line-height: 60px;
+      font-size: bold;
+    }
+    .account {
+      width: 90%;
+      margin: 5px 0;
+    }
+    .password {
+      width: 90%;
+      margin: 5px 0;
+    }
+    .button {
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+</style>
