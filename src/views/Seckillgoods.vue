@@ -3,7 +3,9 @@
     <div class="nav">
       <span class="title">三湘银行秒杀系统</span>
       <span class="user"
-        >欢迎你，<span class="username" @click="topersonal">{{ state.username }}</span></span
+        >欢迎你，<span class="username" @click="topersonal">{{
+          store.state.user.username
+        }}</span></span
       >
       <el-button class="out" @click="out">退出</el-button>
     </div>
@@ -11,21 +13,64 @@
     <div class="activities">
       <div class="activityNav">
         <span>Activity</span>
-        <span>Total:{{ state.activities.length }}</span>
+        <span>Total:{{ state.startactivities.length }}</span>
       </div>
-      <div
-        v-for="(item, index) in state.activities"
-        :key="index"
-        class="activitie"
+      <el-tabs
+        v-model="activeName"
+        type="card"
+        class="demo-tabs"
+        @tab-click="handleClick"
+        style="width: 100%"
       >
-        <div class="info">{{ item.name }}</div>
-        <div class="info">
-          {{ item.starttime }}&nbsp;~&nbsp;{{ item.endtime }}
-        </div>
-        <div class="introduction">{{ item.introduction }}</div>
-        <el-button style="margin-top: 5px">申请</el-button>
-        <el-button style="margin-top: 5px" @click="toActivity">参加</el-button>
-      </div>
+        <el-tab-pane label="即将上线" name="first">
+          <div
+            v-for="(item, index) in state.startactivities"
+            :key="index"
+            class="activitie"
+          >
+            <div class="info">{{ item.activityName }}</div>
+            <div class="info">
+              {{ item.startTime }}&nbsp;~&nbsp;{{ item.endTime }}
+            </div>
+            <div>{{ item.activityDescription }}</div>
+            <el-button style="margin-top: 15px" @click="apply(index)"
+              >申请</el-button
+            >
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="正在进行" name="second"
+          ><div
+            v-for="(item, index) in state.oningactivities"
+            :key="index"
+            class="activitie"
+          >
+            <div class="info">{{ item.activityName }}</div>
+            <div class="info">
+              {{ item.startTime }}&nbsp;~&nbsp;{{ item.endTime }}
+            </div>
+            <div>{{ item.activityDescription }}</div>
+            <el-button style="margin-top: 15px" @click="applying(index)"
+              >申请</el-button
+            >
+            <el-button style="margin-top: 15px" @click="toActivity(index)"
+              >参加</el-button
+            >
+          </div></el-tab-pane
+        >
+        <el-tab-pane label="已经下线" name="third"
+          ><div
+            v-for="(item, index) in state.endactivities"
+            :key="index"
+            class="activitie"
+          >
+            <div class="info">{{ item.activityName }}</div>
+            <div class="info">
+              {{ item.startTime }}&nbsp;~&nbsp;{{ item.endTime }}
+            </div>
+            <div>{{ item.activityDescription }}</div>
+          </div></el-tab-pane
+        >
+      </el-tabs>
     </div>
   </div>
 </template>
@@ -34,94 +79,81 @@
 import { ref, defineComponent, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
+import {
+  getendactivity,
+  getstartactivity,
+  getoningactivity,
+  applyactivity,
+  attendactivity,
+  getactivitygood,
+} from "../network/activity.js";
 export default defineComponent({
   setup(props, { emit }) {
     let router = useRouter();
     let store = useStore();
     let state = reactive({
-      username: "余嘉威",
-      activities: [
-        {
-          id: 1,
-          name: "秒杀第一场",
-          starttime: "2022/4/5 12:00",
-          endtime: "2022/4/5 13:00",
-          introduction:
-            "立即开启我请问请问请问请问撒大苏打特委托今儿看来七五为了钱可见其我立刻就去我立刻看来我请假九二卡拉奇我尽快",
-        },
-        {
-          id: 1,
-          name: "秒杀第一场",
-          starttime: "2022/4/5 12:00",
-          endtime: "2022/4/5 13:00",
-          introduction:
-            "立即开启我请问请问请问请问撒大苏打特委托今儿看来七五为了钱可见其我立刻就去我立刻看来我请假九二卡拉奇我尽快",
-        },
-        {
-          id: 1,
-          name: "秒杀第一场",
-          starttime: "2022/4/5 12:00",
-          endtime: "2022/4/5 13:00",
-          introduction:
-            "立即开启我请问请问请问请问撒大苏打特委托今儿看来七五为了钱可见其我立刻就去我立刻看来我请假九二卡拉奇我尽快",
-        },
-        {
-          id: 1,
-          name: "秒杀第一场",
-          starttime: "2022/4/5 12:00",
-          endtime: "2022/4/5 13:00",
-          introduction:
-            "立即开启我请问请问请问请问撒大苏打特委托今儿看来七五为了钱可见其我立刻就去我立刻看来我请假九二卡拉奇我尽快",
-        },
-        {
-          id: 1,
-          name: "秒杀第一场",
-          starttime: "2022/4/5 12:00",
-          endtime: "2022/4/5 13:00",
-          introduction:
-            "立即开启我请问请问请问请问撒大苏打特委托今儿看来七五为了钱可见其我立刻就去我立刻看来我请假九二卡拉奇我尽快",
-        },
-        {
-          id: 1,
-          name: "秒杀第一场",
-          starttime: "2022/4/5 12:00",
-          endtime: "2022/4/5 13:00",
-          introduction:
-            "立即开启我请问请问请问请问撒大苏打特委托今儿看来七五为了钱可见其我立刻就去我立刻看来我请假九二卡拉奇我尽快",
-        },
-        {
-          id: 1,
-          name: "秒杀第一场",
-          starttime: "2022/4/5 12:00",
-          endtime: "2022/4/5 13:00",
-          introduction:
-            "立即开启我请问请问请问请问撒大苏打特委托今儿看来七五为了钱可见其我立刻就去我立刻看来我请假九二卡拉奇我尽快",
-        },
-        {
-          id: 1,
-          name: "秒杀第一场",
-          starttime: "2022/4/5 12:00",
-          endtime: "2022/4/5 13:00",
-          introduction:
-            "立即开启我请问请问请问请问撒大苏打特委托今儿看来七五为了钱可见其我立刻就去我立刻看来我请假九二卡拉奇我尽快",
-        },
-      ],
+      startactivities: [],
+      oningactivities: [],
+      endactivities: [],
     });
-    const topersonal=function(){
+    const activeName = ref("first");
+    //即将开始活动
+    getstartactivity().then((res) => {
+      state.startactivities = res.data;
+    });
+
+    const apply = function (index) {
+      console.log(store.state.user.id, state.startactivities[index].id);
+      applyactivity(store.state.user.id, state.startactivities[index].id).then(
+        (res) => {
+          console.log(res);
+        }
+      );
+    };
+    //正在进行活动
+    getoningactivity().then((res) => {
+      state.oningactivities = res.data;
+    });
+    const applying = function (index) {
+      console.log(store.state.user.id, state.oningactivities[index].id);
+      applyactivity(store.state.user.id, state.oningactivities[index].id).then(
+        (res) => {
+          console.log(res);
+        }
+      );
+    };
+    const toActivity = function (index) {
+      attendactivity(store.state.user.id, state.oningactivities[index].id).then(
+        (res) => {
+          router.push({
+            path: "/Goodspage",
+            query: {
+              id: state.oningactivities[index].id,
+            },
+          });
+        }
+      );
+    };
+    //已经结束活动
+    getendactivity().then((res) => {
+      state.endactivities = res.data;
+    });
+    const topersonal = function () {
       router.push({ path: "/User" });
-    }
+    };
     const out = function () {
       router.push({ path: "/Home" });
     };
-    const toActivity = function () {
-      router.push({ path: "/Goodspage" });
-    };
+
     return {
       state,
       store,
+      activeName,
+      applying,
+      apply,
       out,
       toActivity,
-      topersonal
+      topersonal,
     };
   },
 });
@@ -145,9 +177,9 @@ export default defineComponent({
     .user {
       font-size: 15px;
       position: absolute;
-      right:110px;
-      top:0;
-      bottom:0;
+      right: 110px;
+      top: 0;
+      bottom: 0;
       .username {
         color: rgb(137, 137, 224);
       }
@@ -192,12 +224,8 @@ export default defineComponent({
       border-radius: 5px;
       padding: 20px;
       margin: 20px;
-      .introduction {
-        padding: 10px 20px;
-        text-align: left;
-      }
       .info {
-        padding: 5px;
+        margin: 15px;
       }
     }
   }

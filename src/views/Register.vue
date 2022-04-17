@@ -18,6 +18,7 @@
 <script lang="ts">
 import { ref, defineComponent, reactive } from "vue";
 import { useRouter } from "vue-router";
+import { loginuser, registeruser } from "../network/user.js";
 import { ElNotification } from "element-plus";
 export default defineComponent({
   setup(props, { emit }) {
@@ -27,7 +28,10 @@ export default defineComponent({
       identity: "",
     });
     const register = function () {
-      router.push({ path: "/Home" });
+      registeruser(state.name, state.identity).then((res:any) => {
+        console.log(res);
+        router.push({ path: "/Home" });
+      });
     };
     return {
       state,

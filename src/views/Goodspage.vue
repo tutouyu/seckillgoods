@@ -11,13 +11,14 @@
         <span>倒计时：1:59:34</span>
       </div>
       <div class="good" v-for="(item, index) in state.goods" :key="index">
-        <div class="name">{{ item.name }}</div>
+        <div class="name">{{ item.productName }}</div>
         <div class="img"><img :src="item.img" alt="" /></div>
-        <div class="num">库存：{{ item.num }}</div>
+        <div class="num">库存：{{ item.availableStock }}</div>
+        <div class="description">描述：{{ item.productDescription }}</div>
         <div class="price">
-          {{ item.oldprice }}元&nbsp;<del>{{ item.newprice }}元</del>
+          {{ item.originalPrice }}元&nbsp;<del>{{ item.spikePrice }}元</del>
         </div>
-        <el-button>秒杀</el-button>
+        <el-button @click="spike(index)">秒杀</el-button>
       </div>
     </div>
   </div>
@@ -26,107 +27,40 @@
 <script lang="ts">
 import { ref, defineComponent, reactive } from "vue";
 import { useRouter } from "vue-router";
+import { useRoute } from "vue-router";
+import { useStore } from "vuex";
+import { spikegood } from "../network/good";
+import {
+  getendactivity,
+  getstartactivity,
+  getoningactivity,
+  applyactivity,
+  attendactivity,
+  getactivitygood,
+} from "../network/activity.js";
 export default defineComponent({
   setup(props, { emit }) {
     let router = useRouter();
+    let route = useRoute();
+    let store = useStore();
     let state = reactive({
-      goods: [
-        {
-          id: 1,
-          name: "三湘基金",
-          img: require("../assets/bank.jpeg"),
-          oldprice: 233,
-          newprice: 122,
-          num: 99,
-        },
-        {
-          id: 1,
-          name: "三湘基金",
-          img: require("../assets/bank.jpeg"),
-          oldprice: 233,
-          newprice: 122,
-          num: 99,
-        },
-        {
-          id: 1,
-          name: "三湘基金",
-          img: require("../assets/bank.jpeg"),
-          oldprice: 233,
-          newprice: 122,
-          num: 99,
-        },
-        {
-          id: 1,
-          name: "三湘基金",
-          img: require("../assets/bank.jpeg"),
-          oldprice: 233,
-          newprice: 122,
-          num: 99,
-        },
-        {
-          id: 1,
-          name: "三湘基金",
-          img: require("../assets/bank.jpeg"),
-          oldprice: 233,
-          newprice: 122,
-          num: 99,
-        },
-        {
-          id: 1,
-          name: "三湘基金",
-          img: require("../assets/bank.jpeg"),
-          oldprice: 233,
-          newprice: 122,
-          num: 99,
-        },
-        {
-          id: 1,
-          name: "三湘基金",
-          img: require("../assets/bank.jpeg"),
-          oldprice: 233,
-          newprice: 122,
-          num: 99,
-        },
-        {
-          id: 1,
-          name: "三湘基金",
-          img: require("../assets/bank.jpeg"),
-          oldprice: 233,
-          newprice: 122,
-          num: 99,
-        },
-        {
-          id: 1,
-          name: "三湘基金",
-          img: require("../assets/bank.jpeg"),
-          oldprice: 233,
-          newprice: 122,
-          num: 99,
-        },
-        {
-          id: 1,
-          name: "三湘基金",
-          img: require("../assets/bank.jpeg"),
-          oldprice: 233,
-          newprice: 122,
-          num: 99,
-        },
-        {
-          id: 1,
-          name: "三湘基金",
-          img: require("../assets/bank.jpeg"),
-          oldprice: 233,
-          newprice: 122,
-          num: 99,
-        },
-      ],
+      goods: [],
+    });
+    getactivitygood(route.query.id).then((res) => {
+      state.goods = res.data;
     });
     const back = function () {
       router.push({ path: "/Seckillgoods" });
     };
+    const spike = function (index) {
+      spikegood(state.goods[index].id, store.state.user.id).then((res) => {
+        console.log(res);
+      });
+    };
     return {
       state,
       back,
+      spike,
     };
   },
 });

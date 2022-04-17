@@ -19,22 +19,31 @@
 </template>
 
 <script lang="ts">
+import { loginuser, registeruser } from "../network/user";
 import { ref, defineComponent, reactive } from "vue";
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 export default defineComponent({
   setup(props, { emit }) {
     let router = useRouter();
+        let store = useStore();
     let state = reactive({
       account: "",
       password: "",
     });
     const login = function () {
-      router.push({ path: "/Seckillgoods" });
+      loginuser(state.password,state.account).then((res:any) => {
+        console.log(res);
+        let data=res.data;
+        store.commit('setUser',data)
+        router.push({ path: "/Seckillgoods" });
+      });
     };
     const register = function () {
       router.push({ path: "/Register" });
     };
     return {
+      store,
       state,
       login,
       register,
